@@ -4,10 +4,3 @@
 !.gitignore
 
 # do not ignore Scripts, Resources, Scenes Directory
-!/Assets/Scripts
-!/Assets/Scenes
-!/Assets/Prefabs
-!/Assets/_UI
-!/Assets/FantasyEnvironments
-!/Assets/Materials
-!/Assets/ScannerAssets
