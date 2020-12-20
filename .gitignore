@@ -3,11 +3,10 @@
 # but do not ignore the .gitignore file
 !.gitignore
 
-# do not ignore Scripts, Resources, Scenes Directory
+# do not ignore Below Directories
 !/Assets/Scripts
 !/Assets/Scenes
 !/Assets/Prefabs
 !/Assets/_UI
-!/Assets/FantasyEnvironments
 !/Assets/Materials
 !/Assets/ScannerAssets
