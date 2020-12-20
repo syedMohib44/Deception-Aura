@@ -6,7 +6,3 @@
 # do not ignore Below Directories
 !/Assets/Scripts
 !/Assets/Scenes
-!/Assets/Prefabs
-!/Assets/_UI
-!/Assets/Materials
-!/Assets/ScannerAssets
