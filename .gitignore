@@ -4,5 +4,4 @@
 !.gitignore
 
 # do not ignore Below Directories
-!/Assets/Scripts
-!/Assets/Scenes
+!/Assets
