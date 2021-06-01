@@ -3,24 +3,39 @@ using BarcodeScanner.Scanner;
 using System;
 using System.Collections;
 using UnityEngine;
-using TMPro;
+using System.Net;
 using UnityEngine.UI;
+using System.IO;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ScanQr : MonoBehaviour
 {
     private IScanner BarcodeScanner;
-    public Text TextHeader;
-    public GameObject exitButton;
-    public RawImage Image;
-    public AudioSource Audio;
+    [SerializeField]
+    private TextMeshProUGUI errorText;
+    [SerializeField]
+    private Button exitButton;
+    [SerializeField]
+    private RawImage Image;
+    [SerializeField]
+    private AudioSource Audio;
     private float RestartTime;
     private Scene_Manager sceneManager;
     private Image backGround;
     private Color backGroundColor;
 
+    [SerializeField]
+    private GameObject progressBar;
+    private Slider progressBarSlider;
+    private Text progressBarText;
+
     // Disable Screen Rotation on that screen
     void Awake()
     {
+        progressBarSlider = progressBar.transform.Find("Slider").GetComponent<Slider>();
+        progressBarText = progressBarSlider.transform.Find("Text").GetComponent<Text>();
+        progressBar.SetActive(false);
         Screen.autorotateToPortrait = false;
         Screen.autorotateToPortraitUpsideDown = false;
     }
@@ -51,19 +66,50 @@ public class ScanQr : MonoBehaviour
             RestartTime = Time.realtimeSinceStartup;
         };
     }
-    private void ExitApp()
+    void ExitApp()
     {
-        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
     }
+    private bool IsActive(string productName, string campaingName)
+    {
+        try
+        {
+            Debug.Log(productName + "    " + campaingName);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(string.Format("http://deception-aura.herokuapp.com/api/campaing/{0}/{1}", productName, campaingName));
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                errorText.SetText(productName + "    " + campaingName);
+                return false;
+            }
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            string jsonResponse = reader.ReadToEnd();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+            errorText.SetText(e.Message);
+            return false;
+        }
+    }
+
     private void StartScanner()
     {
         BarcodeScanner.Scan((barCodeType, barCodeValue) =>
         {
-            Debug.Log(barCodeValue.Split('-')[0] + " " + barCodeValue.Split('-')[1]);
+            string[] scannedString = barCodeValue.Split('-');
+            if (!IsActive(scannedString[0], scannedString[1]))
+                return;
+
             BarcodeScanner.Stop();
-            if (TextHeader.text.Length > 250)
+            if (errorText.text.Length > 250)
             {
-                TextHeader.text = "";
+                errorText.SetText("");
             }
             //Type is comming from XZingParser class line 42.
             if (barCodeValue != null && barCodeType == "QR_CODE")
@@ -71,7 +117,7 @@ public class ScanQr : MonoBehaviour
                 BarcodeScanner.Camera.Stop();
                 sceneManager.LoadScene(barCodeValue.Split('-')[0], barCodeValue.Split('-')[1]);
             }
-            TextHeader.text += "Found: " + barCodeType + " / " + barCodeValue.Split('-')[1] + "\n";
+            errorText.SetText("Found: " + barCodeType + " / " + barCodeValue.Split('-')[1] + "\n");
             RestartTime += Time.realtimeSinceStartup + 1f;
 
             // Feedback
@@ -97,7 +143,7 @@ public class ScanQr : MonoBehaviour
             RestartTime = 0;
         }
         float t = Mathf.PingPong(Time.time, 1.0f) / 1.0f;
-        backGroundColor = Color.Lerp(Color.red, Color.blue, t);
+        backGroundColor = Color.Lerp(new Color(1.000f, 0.922f, 0.516f), new Color(0.0f, 1.0f, 0.5f), t);
         backGround.color = backGroundColor;
 
     }

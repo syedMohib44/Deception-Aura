@@ -34,6 +34,10 @@ public class GyroCamera : MonoBehaviour
 
     void Update()
     {
+        float angleY = WrapAngle(transform.parent.eulerAngles.y);
+        if (angleY >= 180)
+            Debug.Log("Doneeee");
+
         // if (gyroSuppoted && startY == 0)
         //     ResetGyroRotation();
         transform.localRotation = gyroScope.attitude * rotfix;
@@ -54,5 +58,27 @@ public class GyroCamera : MonoBehaviour
 
         startY = transform.eulerAngles.y;
         worldObj.rotation = Quaternion.Euler(0f, startY, 0f);
+    }
+    private bool Clamp(float start, float end)
+    {
+        return false;
+    }
+    private float WrapAngle(float angle)
+    {
+        angle %= 360;
+        if (angle > 180)
+            return angle - 360;
+
+        return angle;
+    }
+
+    private float UnwrapAngle(float angle)
+    {
+        if (angle >= 0)
+            return angle;
+
+        angle = -angle % 360;
+
+        return 360 - angle;
     }
 }
