@@ -103,8 +103,8 @@ public class ScanQr : MonoBehaviour
         BarcodeScanner.Scan((barCodeType, barCodeValue) =>
         {
             string[] scannedString = barCodeValue.Split('-');
-            if (!IsActive(scannedString[0], scannedString[1]))
-                return;
+            // if (!IsActive(scannedString[0], scannedString[1]))
+            //     return;
 
             BarcodeScanner.Stop();
             if (errorText.text.Length > 250)
